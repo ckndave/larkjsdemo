@@ -1,0 +1,41 @@
+?start: value
+
+    ?value: object
+          | array
+          | string
+          | SIGNED_NUMBER      -> number
+          | "true"             -> true
+          | "false"            -> false
+          | "null"             -> null
+          | methods
+          | expression
+          | group
+          | statement
+
+    array  : "[" [value ("," value)*] "]"
+    object : "{" [pair ("," pair)*] "}"
+    pair   : string ":" value
+
+    string : ESCAPED_STRING
+
+    propmethod: "Prop(" ESCAPED_STRING ")"
+    lookupmethod: "Lookup(" ESCAPED_STRING ")"
+    methods: propmethod | lookupmethod
+    andcondition: "AND"
+    orcondition: "OR"
+    condition: andcondition | orcondition
+    eq: "=="
+    operator: eq
+    leftexpression: ESCAPED_STRING | SIGNED_NUMBER | methods
+    expressionvalue: ESCAPED_STRING | SIGNED_NUMBER
+    expression : leftexpression operator expressionvalue
+    groupstart: "("
+    groupend: ")"
+    group: "(" (groupstart)* expression [condition (expression | group)]* (groupend)* ")"
+    statement: (group | expression) [condition (group | expression)]*
+
+    %import common.ESCAPED_STRING
+    %import common.SIGNED_NUMBER
+    %import common.WS
+
+    %ignore WS
