@@ -1,4 +1,4 @@
-?start: value
+ ?start: value
 
     ?value: object
           | array
@@ -11,6 +11,14 @@
           | expression
           | group
           | statement
+          | ifcondition
+          | elifcondition
+          | elsecondition
+          | conditionstatement
+          | ternarystatement
+          | blockbody
+          | assignment
+          | varname
 
     array  : "[" [value ("," value)*] "]"
     object : "{" [pair ("," pair)*] "}"
@@ -20,19 +28,30 @@
 
     propmethod: "Prop(" ESCAPED_STRING ")"
     lookupmethod: "Lookup(" ESCAPED_STRING ")"
-    methods: propmethod | lookupmethod
+    lenmethod: "LEN(" ESCAPED_STRING | propmethod | lookupmethod ")"
+    methods: propmethod | lookupmethod | lenmethod
     andcondition: "AND"
     orcondition: "OR"
     condition: andcondition | orcondition
     eq: "=="
+    ternary: "?"
+    color: ":"
     operator: eq
     leftexpression: ESCAPED_STRING | SIGNED_NUMBER | methods
-    expressionvalue: ESCAPED_STRING | SIGNED_NUMBER
-    expression : leftexpression operator (expressionvalue | group)
+    expressionvalue: ESCAPED_STRING | SIGNED_NUMBER | methods
+    expression : (leftexpression | group) operator (expressionvalue | group)
     groupstart: "("
     groupend: ")"
     group: "(" (groupstart)* expression [condition (expression | group)]* (groupend)* ")"
     statement: (group | expression) [condition (group | expression)]*
+    ifcondition: "if" statement "{" (blockbody)* "}"
+    elifcondition: "elif" statement "{" (blockbody)* "}"
+    elsecondition: "else" "{" (blockbody)* "}"
+    conditionstatement: ifcondition (elifcondition)* (elsecondition)?
+    ternarystatement: statement "?" (methods | expressionvalue) ":" (methods | expressionvalue)
+    assignment: "var" varname "="+ (ESCAPED_STRING | SIGNED_NUMBER) ";"
+    blockbody: (assignment)* (ternarystatement)* (conditionstatement)*
+    varname: /[0-9a-zA-Z]/*
 
     %import common.ESCAPED_STRING
     %import common.SIGNED_NUMBER
