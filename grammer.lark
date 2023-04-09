@@ -39,10 +39,10 @@
     operator: eq
     leftexpression: ESCAPED_STRING | SIGNED_NUMBER | methods
     expressionvalue: ESCAPED_STRING | SIGNED_NUMBER | methods
-    expression : (leftexpression | group) operator (expressionvalue | group)
+    expression : (leftexpression | group) operator (expressionvalue | group | ternarystatement)
     groupstart: "("
     groupend: ")"
-    group: "(" (groupstart)* expression [condition (expression | group)]* (groupend)* ")"
+    group: "(" (groupstart)* (expression | ternarystatement) [condition (expression | group)]* (groupend)* ")"
     statement: (group | expression) [condition (group | expression)]*
     ifcondition: "if" statement "{" (blockbody)* "}"
     elifcondition: "elif" statement "{" (blockbody)* "}"
