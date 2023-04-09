@@ -28,7 +28,7 @@
     operator: eq
     leftexpression: ESCAPED_STRING | SIGNED_NUMBER | methods
     expressionvalue: ESCAPED_STRING | SIGNED_NUMBER
-    expression : leftexpression operator expressionvalue
+    expression : leftexpression operator (expressionvalue | group)
     groupstart: "("
     groupend: ")"
     group: "(" (groupstart)* expression [condition (expression | group)]* (groupend)* ")"
