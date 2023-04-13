@@ -1,0 +1,64 @@
+?start: value | statement
+
+    ?value: object
+          | array
+          | string
+          | SIGNED_NUMBER      -> number
+          | "true"             -> true
+          | "false"            -> false
+          | "null"             -> null
+          
+          //| methods
+          //| expression
+          //| group
+          //| statement
+          //| ifcondition
+          //| elifcondition
+          //| elsecondition
+          //| conditionstatement
+          //| ternarystatement
+          //| blockbody
+          //| assignment
+          //| varname
+    number: SIGNED_NUMBER
+    array  : "[" [value ("," value)*] "]"
+    object : "{" [pair ("," pair)*] "}"
+    pair   : string ":" value
+
+    string : ESCAPED_STRING
+
+    prop: "Prop(" string ")" ("." ("Value" | "Len"))?
+    lookup: "Lookup(" string ")"
+    methods: (prop | lookup | len)
+    len: "Len(" (string | methods) ")"
+    ANDCONDITION: "AND"
+    ORCONDITION: "OR"
+    condition: ANDCONDITION | ORCONDITION
+    eq: "=="
+    ternary: "?"
+    colon: ":"
+    operator: eq | ternary | colon
+    leftexpression: ESCAPED_STRING | number | methods
+    expressionvalue: ESCAPED_STRING | SIGNED_NUMBER | methods
+    //expression : (leftexpression | group) operator (expressionvalue | group | ternarystatement)
+    expression : (leftexpression | group) operator (expressionvalue | group)
+    groupstart: "("
+    groupend: ")"
+    //group: "(" (groupstart)* (expression | ternarystatement) [condition (expression | group)]* (groupend)* ")"
+    //group: "(" (groupstart)* expression [condition (expression | group)]* (groupend)* ")"
+    group: "(" expression (condition (expression | group))* ")"
+    statement: (group | expression) (condition (group | expression))*
+    //ifcondition: "if" statement "{" (blockbody)* "}"
+    //elifcondition: "elif" statement "{" (blockbody)* "}"
+    //elsecondition: "else" "{" (blockbody)* "}"
+    //conditionstatement: ifcondition (elifcondition)* (elsecondition)?
+    //ternarystatement: statement "?" (methods | expressionvalue) ":" (methods | expressionvalue)
+    //assignment: "var" varname "="+ (ESCAPED_STRING | SIGNED_NUMBER) ";"
+    //blockbody: (assignment)* (ternarystatement)* (conditionstatement)*
+    //varname: /[0-9a-zA-Z]/*
+
+    %import common.ESCAPED_STRING
+    %import common.SIGNED_NUMBER
+    %import common.WS
+
+    %ignore WS
