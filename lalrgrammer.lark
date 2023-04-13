@@ -1,4 +1,4 @@
-?start: value | statement
+ ?start: value | blockbody
 
     ?value: object
           | array
@@ -26,8 +26,9 @@
     pair   : string ":" value
 
     string : ESCAPED_STRING
-
-    prop: "Prop(" string ")" ("." ("Value" | "Len"))?
+    val: ".Value."
+    extension: val ("lower" | "upper" | "int" | "bool" | "length")
+    prop: "Prop(" string ")" extension?
     lookup: "Lookup(" string ")"
     methods: (prop | lookup | len)
     len: "Len(" (string | methods) ")"
@@ -48,14 +49,17 @@
     //group: "(" (groupstart)* expression [condition (expression | group)]* (groupend)* ")"
     group: "(" expression (condition (expression | group))* ")"
     statement: (group | expression) (condition (group | expression))*
-    //ifcondition: "if" statement "{" (blockbody)* "}"
-    //elifcondition: "elif" statement "{" (blockbody)* "}"
-    //elsecondition: "else" "{" (blockbody)* "}"
-    //conditionstatement: ifcondition (elifcondition)* (elsecondition)?
-    //ternarystatement: statement "?" (methods | expressionvalue) ":" (methods | expressionvalue)
-    //assignment: "var" varname "="+ (ESCAPED_STRING | SIGNED_NUMBER) ";"
+    ifcondition: "if" (group | expression) "{" (blockbody)* "}"
+    elifcondition: "elif" statement "{" (blockbody)* "}"
+    elsecondition: "else" "{" (blockbody)* "}"
+    conditionstatement: ifcondition (elifcondition)* (elsecondition)?
+    ternarystatement: statement "?" (methods | expressionvalue) ":" (methods | expressionvalue)
+    assignment: var "=" (string | number | methods | group | expression)* ";"
     //blockbody: (assignment)* (ternarystatement)* (conditionstatement)*
-    //varname: /[0-9a-zA-Z]/*
+    conditionblock: ifcondition elifcondition? elsecondition?
+    blockbody: (statement | assignment | conditionblock)*
+    VARNAME: /[0-9a-zA-Z]/+
+    var: "var" VARNAME
 
     %import common.ESCAPED_STRING
     %import common.SIGNED_NUMBER
